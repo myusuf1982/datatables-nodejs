@@ -1,0 +1,330 @@
+  <link href="https://livedemo.mbahcoding.com/assets/datatables/css/dataTables.bootstrap.css" rel="stylesheet">
+  
+  <link href="https://livedemo.mbahcoding.com/assets/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet">
+    
+
+    <div class="container">
+      
+        <h3>Person Data</h3>
+        <br />
+        <button class="btn btn-success" onclick="add_person()"><i class="glyphicon glyphicon-plus"></i> Add Person</button>
+       
+        <br />
+        <br />
+        <table id="table" class="table table-striped table-bordered" cellspacing="0" width="100%">
+            <thead>
+                <tr>
+                  
+                    
+                        <th>namainput</th>  
+                        <th>id_user</th>  
+                        <th>pin1</th>
+                        <th>pin2</th>
+                        <th>driver</th>
+                        <th style="width:125px;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+ 
+          
+        </table>
+    </div>
+ <script src="https://livedemo.mbahcoding.com/assets/datatables/js/jquery.dataTables.min.js"></script>
+<script src="https://livedemo.mbahcoding.com/assets/datatables/js/dataTables.bootstrap.js"></script>
+<script src="https://livedemo.mbahcoding.com/assets/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+ 
+<script type="text/javascript">
+ 
+var save_method; //for save method string
+var table;
+ 
+$(document).ready(function() {
+ 
+    //datatables
+    table = $('#table').DataTable({ 
+ 
+        "processing": true, //Feature control the processing indicator.
+        "serverSide": true, //Feature control DataTables' server-side processing mode.
+        "order": [], //Initial no order.
+ 
+        // Load data for the table's content from an Ajax source
+        "ajax": {
+        "url": "/iot/digitalinout1",
+            "type": "POST"
+        },
+ 
+        //Set column definition initialisation properties.
+        "columnDefs": [
+        { 
+            "targets": [ -1 ], //last column
+            "orderable": false, //set not orderable
+        },
+        ],
+ 
+    });
+ 
+    //datepicker
+    $('.datepicker').datepicker({
+        autoclose: true,
+        format: "yyyy-mm-dd",
+        todayHighlight: true,
+        orientation: "top auto",
+        todayBtn: true,
+        todayHighlight: true,  
+    });
+ 
+});
+ 
+ 
+ 
+function add_person()
+{
+    save_method = 'add';
+    $('#form')[0].reset(); // reset form on modals
+    $('.form-group').removeClass('has-error'); // clear error class
+    $('.help-block').empty(); // clear error string
+    $('#modal_form').modal('show'); // show bootstrap modal
+    $('.modal-title').text('Add Person'); // Set Title to Bootstrap modal title
+}
+
+var idnyak
+function edit_person(id)
+{
+    save_method = 'update';
+    idnyak = id
+    $('#form')[0].reset(); // reset form on modals
+    $('.form-group').removeClass('has-error'); // clear error class
+    $('.help-block').empty(); // clear error string
+    $('#form').attr('action','/digitalinout/' + id);  //ini coba coba
+ 
+    //Ajax Load data from ajax
+    $.ajax({
+        url :'/digitalinoutget/'+id,
+        type: "GET",
+        dataType: "JSON",
+        success: function(data)
+        {
+ 
+         //  $('[name="_id"]').val(data._id);
+            $('[name="namainput"]').val(data.namainput);
+            $('[name="id_user"]').val(data.id_user);
+            $('[name="pin1"]').val(data.pin1);
+            $('[name="pin2"]').val(data.pin2);
+            $('[name="driver"]').val(data.driver);
+          /*
+            $('[name="spi_miso"]').val(data.spi_miso);
+            $('[name="spi_mosi"]').val(data.spi_mosi);
+            $('[name="spi_clk"]').val(data.spi_clk);
+            $('[name="i2c_sda"]').val(data.i2c_sda);
+            $('[name="i2c_scl"]').val(data.i2c_scl);
+            $('[name="i2c_sclk"]').val(data.i2c_sclk);
+            $('[name="pullupdown"]').val(data.pullupdown);
+            $('[name="enable"]').val(data.enable);
+            $('[name="description"]').val(data.description);
+            */
+            $('#modal_form').modal('show'); // show bootstrap modal when complete loaded
+            $('.modal-title').text('Edit Person'); // Set title to Bootstrap modal title
+        
+ 
+        },
+        error: function (jqXHR, textStatus, errorThrown)
+        {
+            alert('Error get data from ajax');
+        }
+    });
+}
+ 
+function reload_table()
+{
+    table.ajax.reload(null,false); //reload datatable ajax 
+}
+ 
+function save()
+{
+    $('#btnSave').text('saving...'); //change button text
+    $('#btnSave').attr('disabled',true); //set button disable 
+    var url, tipenya
+
+    if(save_method == 'add') {
+        url = "/digitalinout"
+        
+        tipenya = "POST"
+    } else {
+         url = "/digitalinout/"+idnyak //"<?php echo site_url('person/ajax_update')?>"; MASIH BINGUNG ID NYA ini masih blum bisA update gk punya ID
+         tipenya = "PUT"
+       
+
+    }
+   
+    // ajax adding data to database
+    $.ajax({
+        url : url,
+        type: tipenya,
+        data: $('#form').serialize(),
+        dataType: "JSON",
+        success: function(data)
+        {
+ 
+         //   if(data.status) //if success close modal and reload ajax table
+         //   {
+                $('#modal_form').modal('hide');
+                reload_table();
+         //   }
+    
+            $('#btnSave').text('save'); //change button text
+            $('#btnSave').attr('disabled',false); //set button enable 
+ 
+ 
+        },
+        error: function (jqXHR, textStatus, errorThrown)
+        {
+            alert('Error adding / update data');
+            $('#btnSave').text('save'); //change button text
+            $('#btnSave').attr('disabled',false); //set button enable 
+ 
+        }
+    });
+}
+ 
+function delete_person(id)
+{
+    if(confirm('Are you sure delete this data?'))
+    {
+        // ajax delete data to database
+        $.ajax({
+            url :"/digitalinout/"+id,   // "<?php echo site_url('person/ajax_delete')?>/"+id,      type: "POST",
+            dataType: "JSON",
+            type: "DELETE",
+            success: function(data)
+            {
+                //if success reload ajax table
+                $('#modal_form').modal('hide');
+                reload_table();
+            },
+            error: function (jqXHR, textStatus, errorThrown)
+            {
+                alert('Error deleting data');
+            }
+        });
+ 
+    }
+}
+ 
+</script>
+ 
+<!-- Bootstrap modal -->
+<div class="modal fade" id="modal_form" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title">Person Form</h3>
+            </div>
+            <div class="modal-body form">
+                <form action="#" id="form" class="form-horizontal">
+                    <input type="hidden" value="" name="id"/> 
+                    <div class="form-body">
+
+
+
+<div class="form-group">
+                    <label class="control-label" for="title">Nama Input:</label>
+                <input type="text" name="namainput" class="form-control" value="nama input" required />
+                    <div class="help-block with-errors"></div>
+            </div>
+
+                 <div class="form-group">
+                    <label class="control-label" for="title">Pin 1</label>
+                    <input type="number" name="pin1" class="form-control" value="0" data-error="Please enter title." required />
+                    <div class="help-block with-errors"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label" for="title">Pin 2:</label>
+                    <input type="number" name="pin2" class="form-control" value="0" data-error="Please enter title." required />
+                    <div class="help-block with-errors"></div>
+                </div>
+
+               <div class="form-group">
+                  <label class="control-label" for="title">driver:</label>
+                    <select class="form-control" name="driver" title="Memilih script">
+                        <label class="control-label" for="title">Pilih driver:</label>
+                              
+                                    <li><option>GPIO</option></li>     
+                                    <li><option>DHT11</option></li>     
+                                    <li><option>DHT22</option></li>     
+                                    <li><option>BMP36</option></li>     
+                              
+                    </select>                                               
+                        </div>
+
+                <div class="form-group">
+                    <label class="control-label" for="title">Spi_miso:</label>
+                    <input type="number" name="spi_miso" class="form-control" value="0" data-error="Please enter title." required />
+                    <div class="help-block with-errors"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label" for="title">spi_mosi:</label>
+                    <input type="number" name="spi_mosi" class="form-control" value="0" data-error="Please enter title." required />
+                    <div class="help-block with-errors"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label" for="title">spi_clk:</label>
+                    <input type="number" name="spi_clk" class="form-control" value="0" data-error="Please enter title." required />
+                    <div class="help-block with-errors"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label" for="title">i2c_sda:</label>
+                    <input type="number" name="i2c_sda" class="form-control" value="0" data-error="Please enter title." required />
+                    <div class="help-block with-errors"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label" for="title">i2c_scl:</label>
+                    <input type="number" name="i2c_scl" class="form-control" value="0" data-error="Please enter title." required />
+                    <div class="help-block with-errors"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label" for="title">i2c_sclk:</label>
+                    <input type="number" name="i2c_sclk" class="form-control" value="0" data-error="Please enter title." required />
+                    <div class="help-block with-errors"></div>
+                </div>
+               
+               
+            <div class="form-group">
+                    <label class="control-label" for="title">pullupdown:</label>
+                <input type="text" name="pullupdown" class="form-control" value="pulldown" required />
+                    <div class="help-block with-errors"></div>
+            </div>
+            
+                <div class="form-group">
+                    <label class="control-label" for="title">enable</label>  <!-- check data-on -->
+                   <input name="enable"  unchecked data-toggle="toggle" data-on="True" data-off="False" data-width="100" type="checkbox">
+                    <div class="help-block with-errors"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label" for="title">Description:</label>
+                    <textarea name="description" class="form-control"  value="Contoh : Untuk mengukur suhu." ></textarea>
+                    <div class="help-block with-errors"></div>
+                </div>
+
+
+
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnSave" onclick="save()" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- End Bootstrap modal -->
+
