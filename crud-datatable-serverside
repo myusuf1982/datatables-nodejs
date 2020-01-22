@@ -1,0 +1,237 @@
+"use strict"; // gk bekerja
+//========dht11============
+var express = require('express');
+var router = express.Router();
+var Digitalinout = require('../models/digitalinout'); // buat sendiri
+
+
+router.get('/iot/index_input', isLoggedIn, function (req, res, next) { 
+  res.render('iot/index_input', {
+  halo: req.user
+});});
+
+
+//testing crud datatable
+router.get('/iot/crudsearch', isLoggedIn, function (req, res, next) { 
+  res.render('iot/crudsearch', {
+  halo: req.user
+});});
+
+
+
+
+// Create Digitalinout via ajax
+router.post('/digitalinout', isLoggedIn, function (req, res, next) {
+	 var dariform = req.body   // Menerima data dari kiriman ajax
+	 var user     = req.user
+	 var digitalinout = new Digitalinout();   
+					 digitalinout.namainput	=  dariform.namainput 
+					 digitalinout.id_user  	=  user._id 
+					 digitalinout.pin1			=  dariform.pin1
+					 digitalinout.pin2			=  dariform.pin2
+				    digitalinout.driver		=  dariform.driver
+					digitalinout.spi_miso	=  dariform.spi_miso
+					digitalinout.spi_mosi	=  dariform.spi_mosi
+					digitalinout.spi_clk		=  dariform.spi_clk
+					digitalinout.i2c_sda		=  dariform.i2c_sda
+					digitalinout.i2c_scl		=  dariform.i2c_scl
+					digitalinout.i2c_sclk	=  dariform.i2c_sclk
+					 digitalinout.pullupdown=  dariform.pullupdown
+					 digitalinout.enable    =  dariform.enable
+                     digitalinout.description=  dariform.description
+	 
+	 digitalinout.save(function (err, result) {if (err) {res.redirect('/');}
+	 res.json(result)  // Mengirim data ke ajax
+	  
+   })});
+  
+
+// read semua parameter io, call by ajax
+
+router.get('/iot/digitalinout', isLoggedIn, function (req, res, next) {
+	
+	Digitalinout.find( function (err, results) {
+		  if (err) {
+			  return res.write('Error!');
+		  }
+		   res.json(results)
+	  
+	  });});
+
+		
+	//ini testing data table komplit search, sort dll
+router.post('/iot/digitalinout1', isLoggedIn, function (req, res, next) {
+	var r ={}; r = req.body 
+	
+	        var range  = Number(req.body.start) 
+					var limit  = Number(req.body.length)
+					var aquery = r["search[value]"]
+					var order =  r["order[0][dir]"]
+				
+					if(+r["order[0][column]"]==0){var sort = {namainput: order}; }////created_at: "asc"
+					if(+r["order[0][column]"]==1){var sort = {id_user: order}; }////created_at: "asc"
+					if(+r["order[0][column]"]==2){var sort = {pin1: order}; }////created_at: "asc"
+					if(+r["order[0][column]"]==3){var sort = {pin2: order}; }////created_at: "asc"
+					if(+r["order[0][column]"]==4){var sort = {driver: order}; }////created_at: "asc"
+					
+								
+					var populate = ""
+			
+	
+	console.log("test isi search = "+aquery) //search 
+	console.log("test isi dir  = "+r["order[0][dir]"]) //desc dan asc
+	console.log("test isi column  = "+r["order[0][column]"]) //0, 1,2,3
+	
+	
+    if (populate == null) {
+      populate = "user";
+    }
+
+		if (order == null ) {
+						sort = {
+				//created_at: "asc"
+				namainput: "asc"
+		  };
+		} 
+		
+ console.log("populate = "+populate)
+
+ var querytest = {"namainput": {'$regex':aquery},
+ "id_user": req.user 
+}								  
+ 
+  //	Digitalinout.find(querytest).skip(range).limit(limit).sort(sort).exec(function(error, value){Digitalinout.count().exec(function(err, count){
+	Digitalinout.count(querytest).exec(function(err, count){	
+	Digitalinout.find(querytest)
+		.skip(range)
+		.limit(limit)
+		.sort(sort)
+		.exec(function(error, value){
+	
+
+    if (limit === 1 && !error) {
+      if (value.length === 0) {
+        error = {
+          code: 402,
+          message: "Not found."
+        };
+      }
+      value = value[0];
+		}
+		
+//var row =[]
+    row = value
+
+		var budi =[]
+		var budia =[]
+
+		for(var i=0; i < value.length; i++){       //var budi =[["a","b","c","d","e",row],["f","g","h","j","j",row]]
+			
+		 budi.push(value[i].namainput)
+		 budi.push(value[i].id_user)
+		 budi.push(value[i].pin1)
+		 budi.push(value[i].pin2)
+		 budi.push(value[i].driver)
+		 /*budi.push(value[i].spi_miso)
+		 budi.push(value[i].spi_mosi)
+		 budi.push(value[i].spi_clk)
+		 budi.push(value[i].i2c_sda)
+		 budi.push(value[i].i2c_scl)
+		 budi.push(value[i].i2c_sclk)
+		 budi.push(value[i].pullupdown)
+		 budi.push(value[i].enable)
+		 budi.push(value[i].description)
+		 */
+
+var idnya ="'"+value[i]._id+"'"
+		 
+//	   var row = "<a class='btn btn-sm btn-primary' href='javascript:void(0)' title='Edit' onclick='edit_person('5e22a286dd8e60880d03fe01')'>Editor</a>";
+var row ='<a class="btn btn-sm btn-primary" href="javascript:void(0)" title="Edit" onclick="edit_person('+idnya+')"><i class="glyphicon glyphicon-pencil"></i> Edit</a>';	
+var row1='<a class="btn btn-sm btn-danger" href="javascript:void(0)" title="Hapus" onclick="delete_person('+idnya+')"><i class="glyphicon glyphicon-trash"></i> Delete</a>';
+budi.push(row+row1)
+	 
+		 budia.push(budi)
+		 budi =[]
+		}
+
+		 var data = {
+			"draw": req.body.draw,
+			"recordsFiltered": count, //value.length,
+			"recordsTotal": count,
+			"data": budia
+			};
+			console.log("value.length = "+value.length)
+		res.json(data)
+
+  })
+	
+})
+})
+				
+			
+// Update digitalinout by ID via ajax
+	router.put('/digitalinout/:id',  isLoggedIn, function (req, res, next) {
+	  var idurl = req.params;  // untuk id di uRL
+	  var dariform = req.body; // untuk body form
+	
+		Digitalinout.findByIdAndUpdate(idurl.id , { 
+				namainput	:  dariform.namainput,
+				id_user   : req.user,
+				pin1			:  dariform.pin1,
+				pin2:  dariform.pin2,
+				driver:  dariform.driver,
+				spi_miso:  dariform.spi_miso,
+				spi_mosi:  dariform.spi_mosi,
+				spi_clk:  dariform.spi_clk,
+				i2c_sda:  dariform.i2c_sda,
+				i2c_scl:  dariform.i2c_scl,
+				i2c_sclk:  dariform.i2c_sclk,
+				enable:  dariform.enable,
+				pullupdown:  dariform.pullupdown,
+			  description:  dariform.description  
+				},
+				
+		function(err, result) {
+		if (err) throw err;
+	  
+		// we have the updated user returned to us
+		//console.log("update Digitalinout baruo" + result);
+//		inisialinput()
+		res.json(result) //hasil dikembalikan ke Ajax "data"  
+	  });
+	});
+	
+	
+	//punya crud datatable
+	router.get('/digitalinoutget/:id', isLoggedIn, function (req, res, next) {
+	var urlid = req.params;
+	
+	Digitalinout.findById(urlid.id, function(err, result) { //router.delete dari bootstrapt bisa error kan backend jika id kosong.
+		  if (err) throw err;
+			//req.flash('success', 'kit di hapus!'); //
+		//  console.log("berhasil remove" + result)
+		  res.json(result) //hasil pembuangan di dikembalikan ke ajax
+	  });});
+	  
+	
+
+// Delete sensor by ID
+router.delete('/digitalinout/:id', isLoggedIn, function (req, res, next) {
+		var urlid = req.params;
+	Digitalinout.findByIdAndRemove(urlid.id, function(err, result) { //router.delete dari bootstrapt bisa error kan backend jika id kosong.
+		  if (err) throw err;
+			//req.flash('success', 'kit di hapus!'); //
+		  console.log("berhasil remove" + result)
+		  res.json(result) //hasil pembuangan di dikembalikan ke ajax
+	  });});
+	  
+function isLoggedIn(req, res, next) {
+		if (req.isAuthenticated()) {
+		  return next();
+		}
+		req.session.oldUrl = req.url;
+	;	res.redirect('/user/signin');
+	  }
+	  
+	  
+module.exports = router;
