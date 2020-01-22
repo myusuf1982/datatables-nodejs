@@ -7,7 +7,7 @@
       
         <h3>Person Data</h3>
         <br />
-        <button class="btn btn-success" onclick="add_person()"><i class="glyphicon glyphicon-plus"></i> Add Person</button>
+        <button class="btn btn-success" onclick="add_person()"><i class="glyphicon glyphicon-plus"></i> Add Input</button>
        
         <br />
         <br />
