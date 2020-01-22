@@ -146,8 +146,8 @@ router.post('/iot/digitalinout1', isLoggedIn, function (req, res, next) {
 var idnya ="'"+value[i]._id+"'"
 		 
 //	   var row = "<a class='btn btn-sm btn-primary' href='javascript:void(0)' title='Edit' onclick='edit_person('5e22a286dd8e60880d03fe01')'>Editor</a>";
-var row ='<a class="btn btn-sm btn-primary" href="javascript:void(0)" title="Edit" onclick="edit_person('+idnya+')"><i class="glyphicon glyphicon-pencil"></i> Edit</a>';	
-var row1='<a class="btn btn-sm btn-danger" href="javascript:void(0)" title="Hapus" onclick="delete_person('+idnya+')"><i class="glyphicon glyphicon-trash"></i> Delete</a>';
+var row ='<a class="btn btn-sm btn-primary" href="javascript:void(0)" title="Edit" onclick="edit_input('+idnya+')"><i class="glyphicon glyphicon-pencil"></i> Edit</a>';	
+var row1='<a class="btn btn-sm btn-danger" href="javascript:void(0)" title="Hapus" onclick="delete_input'+idnya+')"><i class="glyphicon glyphicon-trash"></i> Delete</a>';
 budi.push(row+row1)
 	 
 		 budia.push(budi)
