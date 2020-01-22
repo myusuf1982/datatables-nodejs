@@ -1,6 +1,6 @@
-  <link href="https://livedemo.mbahcoding.com/assets/datatables/css/dataTables.bootstrap.css" rel="stylesheet">
+  <link href="/assets/datatables/css/dataTables.bootstrap.css" rel="stylesheet">
   
-  <link href="https://livedemo.mbahcoding.com/assets/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet">
+  <link href="/assets/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet">
     
 
     <div class="container">
@@ -30,9 +30,9 @@
           
         </table>
     </div>
- <script src="https://livedemo.mbahcoding.com/assets/datatables/js/jquery.dataTables.min.js"></script>
-<script src="https://livedemo.mbahcoding.com/assets/datatables/js/dataTables.bootstrap.js"></script>
-<script src="https://livedemo.mbahcoding.com/assets/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+ <script src="/assets/datatables/js/jquery.dataTables.min.js"></script>
+<script src="/assets/datatables/js/dataTables.bootstrap.js"></script>
+<script src="/assets/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
  
 <script type="text/javascript">
  
