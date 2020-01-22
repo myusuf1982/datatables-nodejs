@@ -1,0 +1,25 @@
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+
+//Output mode relay
+//input mode DO sens
+
+var schema = new Schema({
+  namainput: { type: String, required: true }, //dht11 atau gas leak detektor
+  id_user: { type: Schema.Types.ObjectId, ref: 'User' }, //nama yg buat
+  pin1: { type: Number, required: true }, //contoh mcp3008
+  pin2: { type: Number}, //contoh mcp3008
+  driver: { type: String }, //script/function dht 11, ds 1302 dll digital = GPIO
+  spi_miso: { type: Number}, //1 or 0
+  spi_mosi: { type: Number}, //1 or 0
+  spi_clk: { type: Number}, //1 or 0
+  i2c_sda: { type: Number}, //1 or 0
+  i2c_scl: { type: Number}, //1 or 0
+  i2c_sclk: { type: Number}, //1 or 0
+  pullupdown: { type: String }, //pull up, down & off resistor
+  enable  :{ type: Boolean, "Default": false}, //di record atau tidak
+  description: { type: String } //penjlsan
+ 
+});
+
+module.exports = mongoose.model('Digitalinout', schema);
